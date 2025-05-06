@@ -1,6 +1,17 @@
-#include <iostream>
+#include <QtWidgets/QApplication>
 
-int main() {
-  std::cout << "Hello, World!\n";
-  return 0;
+#include "controller/controller.h"
+#include "model/model.h"
+#include "view/mainwindow.h"
+
+int main(int argc, char* argv[]) {
+  QApplication app(argc, argv);
+
+  viewer3d::Model model;
+  viewer3d::Controller controller(model);
+  viewer3d::MainWindow mainWindow(controller);
+
+  mainWindow.show();
+
+  return app.exec();
 }
