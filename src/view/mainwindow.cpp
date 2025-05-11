@@ -1,12 +1,42 @@
 #include "view/mainwindow.h"
 
+#include <QApplication>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QPalette>
+#include <QStyleFactory>
 
 namespace viewer3d {
 
+namespace {
+const QString kAppTitle = "3DViewer v2.0";
+const int kMinWindowWidth = 800;
+const int kMinWindowHeight = 600;
+
+QPalette createDarkPalette() {
+  QPalette darkPalette;
+  darkPalette.setColor(QPalette::Window, QColor(53, 53, 53));
+  darkPalette.setColor(QPalette::WindowText, Qt::white);
+  darkPalette.setColor(QPalette::Base, QColor(25, 25, 25));
+  darkPalette.setColor(QPalette::AlternateBase, QColor(53, 53, 53));
+  darkPalette.setColor(QPalette::ToolTipBase, Qt::white);
+  darkPalette.setColor(QPalette::ToolTipText, Qt::white);
+  darkPalette.setColor(QPalette::Text, Qt::white);
+  darkPalette.setColor(QPalette::Button, QColor(53, 53, 53));
+  darkPalette.setColor(QPalette::ButtonText, Qt::white);
+  darkPalette.setColor(QPalette::BrightText, Qt::red);
+  darkPalette.setColor(QPalette::Link, QColor(42, 130, 218));
+  darkPalette.setColor(QPalette::Highlight, QColor(42, 130, 218));
+  darkPalette.setColor(QPalette::HighlightedText, Qt::black);
+  return darkPalette;
+}
+}  // namespace
+
 MainWindow::MainWindow(Controller& controller, QWidget* parent)
     : QMainWindow(parent), controller_(controller) {
+  qApp->setStyle(QStyleFactory::create("Fusion"));
+  qApp->setPalette(createDarkPalette());
+
   setupUI();
   setupConnections();
   updateStatusBar();
@@ -16,14 +46,17 @@ void MainWindow::setupUI() {
   createWidgets();
   createLayouts();
 
-  setWindowTitle("3DViewer v2.0");
-  setMinimumSize(800, 600);
+  setWindowTitle(kAppTitle);
+  setMinimumSize(kMinWindowWidth, kMinWindowHeight);
+
+  statusBar()->showMessage("Готов к работе");
 }
 
 void MainWindow::createWidgets() {
   glWidget_ = new GLWidget(controller_, this);
 
   openButton_ = new QPushButton("Открыть файл", this);
+  openButton_->setIcon(QIcon::fromTheme("document-open"));
 
   translateXSpin_ = new QDoubleSpinBox(this);
   translateYSpin_ = new QDoubleSpinBox(this);
@@ -42,9 +75,17 @@ void MainWindow::createWidgets() {
   translateYSpin_->setRange(-100.0, 100.0);
   translateZSpin_->setRange(-100.0, 100.0);
 
+  translateXSpin_->setSingleStep(0.1);
+  translateYSpin_->setSingleStep(0.1);
+  translateZSpin_->setSingleStep(0.1);
+
   rotateXSpin_->setRange(-360.0, 360.0);
   rotateYSpin_->setRange(-360.0, 360.0);
   rotateZSpin_->setRange(-360.0, 360.0);
+
+  rotateXSpin_->setSingleStep(5.0);
+  rotateYSpin_->setSingleStep(5.0);
+  rotateZSpin_->setSingleStep(5.0);
 
   scaleSpin_->setRange(0.01, 100.0);
   scaleSpin_->setValue(1.0);
@@ -53,6 +94,17 @@ void MainWindow::createWidgets() {
   fileNameLabel_ = new QLabel(this);
   vertexCountLabel_ = new QLabel(this);
   edgeCountLabel_ = new QLabel(this);
+
+  QString buttonStyle =
+      "QPushButton { background-color: #3a3a3a; border-radius: 4px; padding: "
+      "6px; }";
+  buttonStyle += "QPushButton:hover { background-color: #4a4a4a; }";
+  buttonStyle += "QPushButton:pressed { background-color: #2a2a2a; }";
+
+  openButton_->setStyleSheet(buttonStyle);
+  translateButton_->setStyleSheet(buttonStyle);
+  rotateButton_->setStyleSheet(buttonStyle);
+  scaleButton_->setStyleSheet(buttonStyle);
 }
 
 void MainWindow::createLayouts() {
@@ -106,6 +158,18 @@ void MainWindow::createLayouts() {
   scaleLayout->addWidget(scaleSpin_);
   scaleLayout->addWidget(scaleButton_);
   controlsLayout->addWidget(scaleGroup);
+
+  QString groupStyle =
+      "QGroupBox { font-weight: bold; border: 1px solid #555; border-radius: "
+      "5px; margin-top: 10px; }";
+  groupStyle +=
+      "QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 "
+      "5px 0 5px; }";
+
+  infoGroup->setStyleSheet(groupStyle);
+  translateGroup->setStyleSheet(groupStyle);
+  rotateGroup->setStyleSheet(groupStyle);
+  scaleGroup->setStyleSheet(groupStyle);
 }
 
 void MainWindow::setupConnections() {
@@ -129,11 +193,15 @@ void MainWindow::openFile() {
                          "Файл превышает 10 МБ. Загрузка может занять время.");
   }
 
+  statusBar()->showMessage("Загрузка модели...");
+
   if (controller_.LoadModel(fileName.toStdString())) {
     updateStatusBar();
     glWidget_->updateModel();
+    statusBar()->showMessage("Модель загружена успешно", 3000);
   } else {
     QMessageBox::critical(this, "Ошибка", "Не удалось загрузить файл");
+    statusBar()->showMessage("Ошибка загрузки модели", 3000);
   }
 }
 
@@ -142,8 +210,10 @@ void MainWindow::translate() {
   float dy = static_cast<float>(translateYSpin_->value());
   float dz = static_cast<float>(translateZSpin_->value());
 
+  statusBar()->showMessage("Перемещение модели...");
   controller_.TranslateModel(dx, dy, dz);
   glWidget_->updateModel();
+  statusBar()->showMessage("Модель перемещена", 3000);
 
   translateXSpin_->setValue(0.0);
   translateYSpin_->setValue(0.0);
@@ -155,8 +225,10 @@ void MainWindow::rotate() {
   float angleY = static_cast<float>(rotateYSpin_->value());
   float angleZ = static_cast<float>(rotateZSpin_->value());
 
+  statusBar()->showMessage("Вращение модели...");
   controller_.RotateModel(angleX, angleY, angleZ);
   glWidget_->updateModel();
+  statusBar()->showMessage("Модель повернута", 3000);
 
   rotateXSpin_->setValue(0.0);
   rotateYSpin_->setValue(0.0);
@@ -166,8 +238,10 @@ void MainWindow::rotate() {
 void MainWindow::scale() {
   float factor = static_cast<float>(scaleSpin_->value());
 
+  statusBar()->showMessage("Масштабирование модели...");
   controller_.ScaleModel(factor);
   glWidget_->updateModel();
+  statusBar()->showMessage("Модель масштабирована", 3000);
 
   scaleSpin_->setValue(1.0);
 }

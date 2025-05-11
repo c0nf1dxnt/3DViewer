@@ -9,30 +9,22 @@ namespace viewer3d {
 
 class Controller {
  public:
-  Controller(Model& model) : model_(model) {}
+  Controller(Model& model);
   ~Controller() = default;
 
-  bool LoadModel(const std::string& filename) {
-    return model_.LoadFromFile(filename);
-  }
-  void ClearModel() { model_.Clear(); }
+  bool LoadModel(const std::string& filename);
+  void ClearModel();
 
-  void TranslateModel(float dx, float dy, float dz) {
-    model_.Translate(dx, dy, dz);
-  }
-  void RotateModel(float angleX, float angleY, float angleZ) {
-    model_.Rotate(angleX, angleY, angleZ);
-  }
-  void ScaleModel(float factor) { model_.Scale(factor); }
+  void TranslateModel(float dx, float dy, float dz);
+  void RotateModel(float angleX, float angleY, float angleZ);
+  void ScaleModel(float factor);
 
-  const std::vector<Vertex>& GetVertices() const {
-    return model_.GetVertices();
-  }
-  const std::vector<Face>& GetFaces() const { return model_.GetFaces(); }
+  const std::vector<Vertex>& GetVertices() const;
+  const std::vector<Face>& GetFaces() const;
 
-  std::string GetFilename() const { return model_.GetFilename(); }
-  int GetVertexCount() const { return model_.GetVertexCount(); }
-  int GetEdgeCount() const { return model_.GetEdgeCount(); }
+  std::string GetFilename() const;
+  int GetVertexCount() const;
+  int GetEdgeCount() const;
 
  private:
   Model& model_;

@@ -4,46 +4,82 @@
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 
 namespace viewer3d {
+
+namespace {
+constexpr float kDegToRad = M_PI / 180.0f;
+constexpr float kMinScaleFactor = 0.0001f;
+}  // namespace
 
 bool Model::LoadFromFile(const std::string& filename) {
   Clear();
 
   std::ifstream file(filename);
   if (!file.is_open()) {
+    std::cerr << "Ошибка: не удалось открыть файл " << filename << std::endl;
     return false;
   }
 
   filename_ = filename;
   std::string line;
-  while (std::getline(file, line)) {
-    std::istringstream iss(line);
-    std::string token;
-    iss >> token;
+  int line_number = 0;
 
-    if (token == "v") {
-      Vertex vertex;
-      iss >> vertex.x >> vertex.y >> vertex.z;
-      vertices_.push_back(vertex);
-    } else if (token == "f") {
-      Face face;
-      std::string vertex_index;
-      while (iss >> vertex_index) {
-        std::istringstream vertex_stream(vertex_index);
-        int v_index;
-        vertex_stream >> v_index;
+  try {
+    while (std::getline(file, line)) {
+      line_number++;
+      std::istringstream iss(line);
+      std::string token;
+      iss >> token;
 
-        if (v_index < 0) {
-          v_index = vertices_.size() + v_index + 1;
+      if (token == "v") {
+        Vertex vertex;
+        if (!(iss >> vertex.x >> vertex.y >> vertex.z)) {
+          std::cerr << "Предупреждение: некорректные данные вершины в строке "
+                    << line_number << std::endl;
+          continue;
         }
+        vertices_.push_back(vertex);
+      } else if (token == "f") {
+        Face face;
+        std::string vertex_index;
+        while (iss >> vertex_index) {
+          std::istringstream vertex_stream(vertex_index);
+          int v_index;
+          if (!(vertex_stream >> v_index)) {
+            std::cerr << "Предупреждение: некорректный индекс вершины в строке "
+                      << line_number << std::endl;
+            continue;
+          }
 
-        face.vertexIndices.push_back(v_index - 1);
-      }
-      if (face.vertexIndices.size() > 2) {
-        faces_.push_back(face);
+          if (v_index < 0) {
+            v_index = vertices_.size() + v_index + 1;
+          }
+
+          if (v_index <= 0 || v_index > static_cast<int>(vertices_.size())) {
+            std::cerr
+                << "Предупреждение: индекс вершины вне диапазона в строке "
+                << line_number << std::endl;
+            continue;
+          }
+
+          face.vertexIndices.push_back(v_index - 1);
+        }
+        if (face.vertexIndices.size() > 2) {
+          faces_.push_back(face);
+        }
       }
     }
+  } catch (const std::exception& e) {
+    std::cerr << "Ошибка при чтении файла: " << e.what() << std::endl;
+    Clear();
+    return false;
+  }
+
+  if (vertices_.empty()) {
+    std::cerr << "Предупреждение: файл не содержит вершин" << std::endl;
+    return false;
   }
 
   CalculateEdgeCount();
@@ -66,9 +102,9 @@ void Model::Translate(float dx, float dy, float dz) {
 }
 
 void Model::Rotate(float angleX, float angleY, float angleZ) {
-  float radX = angleX * M_PI / 180.0f;
-  float radY = angleY * M_PI / 180.0f;
-  float radZ = angleZ * M_PI / 180.0f;
+  float radX = angleX * kDegToRad;
+  float radY = angleY * kDegToRad;
+  float radZ = angleZ * kDegToRad;
 
   float sinX = sin(radX);
   float cosX = cos(radX);
@@ -110,7 +146,9 @@ void Model::Rotate(float angleX, float angleY, float angleZ) {
 }
 
 void Model::Scale(float factor) {
-  if (factor <= 0) {
+  if (factor <= kMinScaleFactor) {
+    std::cerr << "Предупреждение: коэффициент масштабирования слишком мал"
+              << std::endl;
     return;
   }
 

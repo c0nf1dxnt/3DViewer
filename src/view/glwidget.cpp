@@ -7,6 +7,25 @@
 
 namespace viewer3d {
 
+namespace {
+constexpr float kBackgroundR = 0.2f;
+constexpr float kBackgroundG = 0.2f;
+constexpr float kBackgroundB = 0.2f;
+constexpr float kBackgroundA = 1.0f;
+
+constexpr float kModelR = 0.9f;
+constexpr float kModelG = 0.9f;
+constexpr float kModelB = 0.9f;
+
+constexpr float kCameraDistance = -5.0f;
+constexpr float kRotationSpeed = 0.5f;
+constexpr float kZoomSpeed = 0.1f;
+constexpr float kMinZoom = 0.1f;
+constexpr float kDefaultFOV = 45.0f;
+constexpr float kNearPlane = 0.1f;
+constexpr float kFarPlane = 100.0f;
+}  // namespace
+
 GLWidget::GLWidget(Controller& controller, QWidget* parent)
     : QOpenGLWidget(parent), controller_(controller) {}
 
@@ -14,7 +33,7 @@ GLWidget::~GLWidget() {}
 
 void GLWidget::initializeGL() {
   initializeOpenGLFunctions();
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(kBackgroundR, kBackgroundG, kBackgroundB, kBackgroundA);
 
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_CULL_FACE);
@@ -25,7 +44,7 @@ void GLWidget::paintGL() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
 
-  glTranslatef(0.0f, 0.0f, -5.0f);
+  glTranslatef(0.0f, 0.0f, kCameraDistance);
   glScalef(zoom_, zoom_, zoom_);
   glRotatef(rotationX_, 1.0f, 0.0f, 0.0f);
   glRotatef(rotationY_, 0.0f, 1.0f, 0.0f);
@@ -39,7 +58,7 @@ void GLWidget::resizeGL(int width, int height) {
   glLoadIdentity();
 
   float aspect = static_cast<float>(width) / (height ? height : 1);
-  gluPerspective(45.0, aspect, 0.1, 100.0);
+  gluPerspective(kDefaultFOV, aspect, kNearPlane, kFarPlane);
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -52,8 +71,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent* event) {
   int dy = event->y() - lastPos_.y();
 
   if (event->buttons() & Qt::LeftButton) {
-    rotationX_ += 0.5f * dy;
-    rotationY_ += 0.5f * dx;
+    rotationX_ += kRotationSpeed * dy;
+    rotationY_ += kRotationSpeed * dx;
     update();
   }
 
@@ -62,8 +81,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent* event) {
 
 void GLWidget::wheelEvent(QWheelEvent* event) {
   float delta = event->angleDelta().y() / 120.0f;
-  zoom_ += zoom_ * 0.1f * delta;
-  zoom_ = std::max(0.1f, zoom_);
+  zoom_ += zoom_ * kZoomSpeed * delta;
+  zoom_ = std::max(kMinZoom, zoom_);
   update();
 }
 
@@ -77,7 +96,7 @@ void GLWidget::drawModel() {
     return;
   }
 
-  glColor3f(1.0f, 1.0f, 1.0f);
+  glColor3f(kModelR, kModelG, kModelB);
 
   for (const auto& face : faces) {
     const auto& indices = face.vertexIndices;

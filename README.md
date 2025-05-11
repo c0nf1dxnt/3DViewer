@@ -34,7 +34,7 @@
 mkdir build && cd build
 cmake ..
 make
-./bin/viewer
+./viewer
 ```
 
 ### С использованием Makefile
