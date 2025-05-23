@@ -13,6 +13,21 @@ set(CMAKE_AUTOUIC ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+if(APPLE)
+  execute_process(
+    COMMAND brew --prefix qt@5
+    OUTPUT_VARIABLE QTDIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  if(QTDIR)
+    list(APPEND CMAKE_PREFIX_PATH ${QTDIR})
+  endif()
+endif()
+
+if(APPLE)
+  add_definitions(-DGL_SILENCE_DEPRECATION)
+endif()
+
 find_package(Qt5 COMPONENTS Widgets Core Gui OpenGL REQUIRED)
 
 find_package(OpenGL REQUIRED)
