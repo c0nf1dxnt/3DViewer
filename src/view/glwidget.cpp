@@ -104,16 +104,25 @@ void GLWidget::drawModel() {
 
   for (const auto& face : faces) {
     const auto& indices = face.vertexIndices;
-    if (indices.size() < 3) continue;
-
-    glBegin(GL_LINE_LOOP);
-    for (int index : indices) {
-      if (index >= 0 && index < static_cast<int>(vertices.size())) {
-        const auto& vertex = vertices[index];
-        glVertex3f(vertex.x, vertex.y, vertex.z);
+    if (indices.size() == 2) {
+      glBegin(GL_LINES);
+      for (int index : indices) {
+        if (index >= 0 && index < static_cast<int>(vertices.size())) {
+          const auto& vertex = vertices[index];
+          glVertex3f(vertex.x, vertex.y, vertex.z);
+        }
       }
+      glEnd();
+    } else if (indices.size() >= 3) {
+      glBegin(GL_LINE_LOOP);
+      for (int index : indices) {
+        if (index >= 0 && index < static_cast<int>(vertices.size())) {
+          const auto& vertex = vertices[index];
+          glVertex3f(vertex.x, vertex.y, vertex.z);
+        }
+      }
+      glEnd();
     }
-    glEnd();
   }
 }
 

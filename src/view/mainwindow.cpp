@@ -9,7 +9,7 @@
 namespace viewer3d {
 
 namespace {
-const QString kAppTitle = "3DViewer v2.0";
+const QString kAppTitle = "3DViewer";
 const int kMinWindowWidth = 800;
 const int kMinWindowHeight = 600;
 
@@ -49,27 +49,27 @@ void MainWindow::setupUI() {
   setWindowTitle(kAppTitle);
   setMinimumSize(kMinWindowWidth, kMinWindowHeight);
 
-  statusBar()->showMessage("Готов к работе");
+  statusBar()->showMessage("Ready for work.");
 }
 
 void MainWindow::createWidgets() {
   glWidget_ = new GLWidget(controller_, this);
 
-  openButton_ = new QPushButton("Открыть файл", this);
+  openButton_ = new QPushButton("Open file", this);
   openButton_->setIcon(QIcon::fromTheme("document-open"));
 
   translateXSpin_ = new QDoubleSpinBox(this);
   translateYSpin_ = new QDoubleSpinBox(this);
   translateZSpin_ = new QDoubleSpinBox(this);
-  translateButton_ = new QPushButton("Переместить", this);
+  translateButton_ = new QPushButton("Move", this);
 
   rotateXSpin_ = new QDoubleSpinBox(this);
   rotateYSpin_ = new QDoubleSpinBox(this);
   rotateZSpin_ = new QDoubleSpinBox(this);
-  rotateButton_ = new QPushButton("Повернуть", this);
+  rotateButton_ = new QPushButton("Rotate", this);
 
   scaleSpin_ = new QDoubleSpinBox(this);
-  scaleButton_ = new QPushButton("Масштабировать", this);
+  scaleButton_ = new QPushButton("Scale", this);
 
   translateXSpin_->setRange(-100.0, 100.0);
   translateYSpin_->setRange(-100.0, 100.0);
@@ -121,7 +121,7 @@ void MainWindow::createLayouts() {
   QVBoxLayout* fileLayout = new QVBoxLayout();
   fileLayout->addWidget(openButton_);
 
-  QGroupBox* infoGroup = new QGroupBox("Информация о модели", this);
+  QGroupBox* infoGroup = new QGroupBox("Information about model", this);
   QVBoxLayout* infoLayout = new QVBoxLayout(infoGroup);
   infoLayout->addWidget(fileNameLabel_);
   infoLayout->addWidget(vertexCountLabel_);
@@ -130,7 +130,7 @@ void MainWindow::createLayouts() {
 
   controlsLayout->addLayout(fileLayout);
 
-  QGroupBox* translateGroup = new QGroupBox("Перемещение", this);
+  QGroupBox* translateGroup = new QGroupBox("Movement", this);
   QVBoxLayout* translateLayout = new QVBoxLayout(translateGroup);
   translateLayout->addWidget(new QLabel("X:", this));
   translateLayout->addWidget(translateXSpin_);
@@ -141,7 +141,7 @@ void MainWindow::createLayouts() {
   translateLayout->addWidget(translateButton_);
   controlsLayout->addWidget(translateGroup);
 
-  QGroupBox* rotateGroup = new QGroupBox("Вращение", this);
+  QGroupBox* rotateGroup = new QGroupBox("Rotation", this);
   QVBoxLayout* rotateLayout = new QVBoxLayout(rotateGroup);
   rotateLayout->addWidget(new QLabel("X:", this));
   rotateLayout->addWidget(rotateXSpin_);
@@ -152,9 +152,9 @@ void MainWindow::createLayouts() {
   rotateLayout->addWidget(rotateButton_);
   controlsLayout->addWidget(rotateGroup);
 
-  QGroupBox* scaleGroup = new QGroupBox("Масштабирование", this);
+  QGroupBox* scaleGroup = new QGroupBox("Scaling", this);
   QVBoxLayout* scaleLayout = new QVBoxLayout(scaleGroup);
-  scaleLayout->addWidget(new QLabel("Коэффициент:", this));
+  scaleLayout->addWidget(new QLabel("Level:", this));
   scaleLayout->addWidget(scaleSpin_);
   scaleLayout->addWidget(scaleButton_);
   controlsLayout->addWidget(scaleGroup);
@@ -181,7 +181,7 @@ void MainWindow::setupConnections() {
 }
 
 void MainWindow::openFile() {
-  QString fileName = QFileDialog::getOpenFileName(this, "Открыть OBJ файл", "",
+  QString fileName = QFileDialog::getOpenFileName(this, "Open .obj file", "",
                                                   "OBJ Files (*.obj)");
   if (fileName.isEmpty()) {
     return;
@@ -189,19 +189,20 @@ void MainWindow::openFile() {
 
   QFileInfo fileInfo(fileName);
   if (fileInfo.size() > 10 * 1024 * 1024) {
-    QMessageBox::warning(this, "Предупреждение",
-                         "Файл превышает 10 МБ. Загрузка может занять время.");
+    QMessageBox::warning(
+        this, "Warning!",
+        "The file exceeds 10 MB. It may take a while to download.");
   }
 
-  statusBar()->showMessage("Загрузка модели...");
+  statusBar()->showMessage("Uploading the model...");
 
   if (controller_.LoadModel(fileName.toStdString())) {
     updateStatusBar();
     glWidget_->updateModel();
-    statusBar()->showMessage("Модель загружена успешно", 3000);
+    statusBar()->showMessage("The model was uploaded successfully", 3000);
   } else {
-    QMessageBox::critical(this, "Ошибка", "Не удалось загрузить файл");
-    statusBar()->showMessage("Ошибка загрузки модели", 3000);
+    QMessageBox::critical(this, "Error", "Failed to upload file");
+    statusBar()->showMessage("Model loading error", 3000);
   }
 }
 
@@ -210,10 +211,10 @@ void MainWindow::translate() {
   float dy = static_cast<float>(translateYSpin_->value());
   float dz = static_cast<float>(translateZSpin_->value());
 
-  statusBar()->showMessage("Перемещение модели...");
+  statusBar()->showMessage("Moving the model...");
   controller_.TranslateModel(dx, dy, dz);
   glWidget_->updateModel();
-  statusBar()->showMessage("Модель перемещена", 3000);
+  statusBar()->showMessage("The model has been moved", 3000);
 
   translateXSpin_->setValue(0.0);
   translateYSpin_->setValue(0.0);
@@ -225,10 +226,10 @@ void MainWindow::rotate() {
   float angleY = static_cast<float>(rotateYSpin_->value());
   float angleZ = static_cast<float>(rotateZSpin_->value());
 
-  statusBar()->showMessage("Вращение модели...");
+  statusBar()->showMessage("Rotating the model...");
   controller_.RotateModel(angleX, angleY, angleZ);
   glWidget_->updateModel();
-  statusBar()->showMessage("Модель повернута", 3000);
+  statusBar()->showMessage("The model has been rotated", 3000);
 
   rotateXSpin_->setValue(0.0);
   rotateYSpin_->setValue(0.0);
@@ -238,20 +239,20 @@ void MainWindow::rotate() {
 void MainWindow::scale() {
   float factor = static_cast<float>(scaleSpin_->value());
 
-  statusBar()->showMessage("Масштабирование модели...");
+  statusBar()->showMessage("Scaling the model...");
   controller_.ScaleModel(factor);
   glWidget_->updateModel();
-  statusBar()->showMessage("Модель масштабирована", 3000);
+  statusBar()->showMessage("The model has been scaled", 3000);
 
   scaleSpin_->setValue(1.0);
 }
 
 void MainWindow::updateStatusBar() {
-  fileNameLabel_->setText("Файл: " +
+  fileNameLabel_->setText("File: " +
                           QString::fromStdString(controller_.GetFilename()));
-  vertexCountLabel_->setText("Вершин: " +
+  vertexCountLabel_->setText("Vertexes: " +
                              QString::number(controller_.GetVertexCount()));
-  edgeCountLabel_->setText("Ребер: " +
+  edgeCountLabel_->setText("Edges: " +
                            QString::number(controller_.GetEdgeCount()));
 }
 

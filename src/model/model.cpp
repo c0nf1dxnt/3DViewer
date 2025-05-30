@@ -10,7 +10,7 @@ namespace viewer3d {
 
 namespace {
 constexpr float kDegToRad = M_PI / 180.0f;
-constexpr float kMinScaleFactor = 0.0001f;
+constexpr float kMinScaleFactor = 0.1f;
 }  // namespace
 
 bool Model::LoadFromFile(const std::string& filename) {
@@ -18,7 +18,7 @@ bool Model::LoadFromFile(const std::string& filename) {
 
   std::ifstream file(filename);
   if (!file.is_open()) {
-    std::cerr << "Ошибка: не удалось открыть файл " << filename << std::endl;
+    std::cerr << "Error: couldn't open the file " << filename << std::endl;
     return false;
   }
 
@@ -36,7 +36,7 @@ bool Model::LoadFromFile(const std::string& filename) {
       if (token == "v") {
         Vertex vertex;
         if (!(iss >> vertex.x >> vertex.y >> vertex.z)) {
-          std::cerr << "Предупреждение: некорректные данные вершины в строке "
+          std::cerr << "Warning: incorrect vertex data in the row "
                     << line_number << std::endl;
           continue;
         }
@@ -48,7 +48,7 @@ bool Model::LoadFromFile(const std::string& filename) {
           std::istringstream vertex_stream(vertex_index);
           int v_index;
           if (!(vertex_stream >> v_index)) {
-            std::cerr << "Предупреждение: некорректный индекс вершины в строке "
+            std::cerr << "Warning: incorrect vertex index in the row "
                       << line_number << std::endl;
             continue;
           }
@@ -58,27 +58,27 @@ bool Model::LoadFromFile(const std::string& filename) {
           }
 
           if (v_index <= 0 || v_index > static_cast<int>(vertices_.size())) {
-            std::cerr
-                << "Предупреждение: индекс вершины вне диапазона в строке "
-                << line_number << std::endl;
+            std::cerr << "Warning: the index of the vertex is out of range in "
+                         "the row "
+                      << line_number << std::endl;
             continue;
           }
 
           face.vertexIndices.push_back(v_index - 1);
         }
-        if (face.vertexIndices.size() > 2) {
+        if (face.vertexIndices.size() >= 2) {
           faces_.push_back(face);
         }
       }
     }
   } catch (const std::exception& e) {
-    std::cerr << "Ошибка при чтении файла: " << e.what() << std::endl;
+    std::cerr << "Error reading the file: " << e.what() << std::endl;
     Clear();
     return false;
   }
 
   if (vertices_.empty()) {
-    std::cerr << "Предупреждение: файл не содержит вершин" << std::endl;
+    std::cerr << "Warning: the file does not contain vertices" << std::endl;
     return false;
   }
 
@@ -147,8 +147,7 @@ void Model::Rotate(float angleX, float angleY, float angleZ) {
 
 void Model::Scale(float factor) {
   if (factor <= kMinScaleFactor) {
-    std::cerr << "Предупреждение: коэффициент масштабирования слишком мал"
-              << std::endl;
+    std::cerr << "Warning: The zoom level is too small" << std::endl;
     return;
   }
 
