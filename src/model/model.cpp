@@ -1,4 +1,4 @@
-#include "model/model.h"
+#include "model/model.hpp"
 
 #include <cmath>
 #include <fstream>
@@ -82,67 +82,50 @@ bool Model::LoadFromFile(const std::string& filename) {
     return false;
   }
 
+  original_vertices_ = vertices_;
+
+  current_translate_x_ = 0.0f;
+  current_translate_y_ = 0.0f;
+  current_translate_z_ = 0.0f;
+  current_rotate_x_ = 0.0f;
+  current_rotate_y_ = 0.0f;
+  current_rotate_z_ = 0.0f;
+  current_scale_ = 1.0f;
+
   CalculateEdgeCount();
   return true;
 }
 
 void Model::Clear() {
   vertices_.clear();
+  original_vertices_.clear();
   faces_.clear();
   filename_.clear();
   edge_count_ = 0;
+
+  current_translate_x_ = 0.0f;
+  current_translate_y_ = 0.0f;
+  current_translate_z_ = 0.0f;
+  current_rotate_x_ = 0.0f;
+  current_rotate_y_ = 0.0f;
+  current_rotate_z_ = 0.0f;
+  current_scale_ = 1.0f;
 }
 
 void Model::Translate(float dx, float dy, float dz) {
-  for (auto& vertex : vertices_) {
-    vertex.x += dx;
-    vertex.y += dy;
-    vertex.z += dz;
-  }
+  current_translate_x_ = dx;
+  current_translate_y_ = dy;
+  current_translate_z_ = dz;
+
+  ApplyAllTransformations();
 }
 
 void Model::Rotate(float angleX, float angleY, float angleZ) {
-  float radX = angleX * kDegToRad;
-  float radY = angleY * kDegToRad;
-  float radZ = angleZ * kDegToRad;
+  current_rotate_x_ = angleX;
+  current_rotate_y_ = angleY;
+  current_rotate_z_ = angleZ;
 
-  float sinX = sin(radX);
-  float cosX = cos(radX);
-  float sinY = sin(radY);
-  float cosY = cos(radY);
-  float sinZ = sin(radZ);
-  float cosZ = cos(radZ);
-
-  for (auto& vertex : vertices_) {
-    float x = vertex.x;
-    float y = vertex.y;
-    float z = vertex.z;
-
-    if (angleX != 0) {
-      float y1 = y * cosX - z * sinX;
-      float z1 = y * sinX + z * cosX;
-      y = y1;
-      z = z1;
-    }
-
-    if (angleY != 0) {
-      float x1 = x * cosY + z * sinY;
-      float z1 = -x * sinY + z * cosY;
-      x = x1;
-      z = z1;
-    }
-
-    if (angleZ != 0) {
-      float x1 = x * cosZ - y * sinZ;
-      float y1 = x * sinZ + y * cosZ;
-      x = x1;
-      y = y1;
-    }
-
-    vertex.x = x;
-    vertex.y = y;
-    vertex.z = z;
-  }
+  ApplyAllTransformations();
 }
 
 void Model::Scale(float factor) {
@@ -151,10 +134,74 @@ void Model::Scale(float factor) {
     return;
   }
 
-  for (auto& vertex : vertices_) {
-    vertex.x *= factor;
-    vertex.y *= factor;
-    vertex.z *= factor;
+  current_scale_ = factor;
+
+  ApplyAllTransformations();
+}
+
+void Model::ApplyAllTransformations() {
+  vertices_ = original_vertices_;
+
+  if (current_scale_ != 1.0f) {
+    for (auto& vertex : vertices_) {
+      vertex.x *= current_scale_;
+      vertex.y *= current_scale_;
+      vertex.z *= current_scale_;
+    }
+  }
+
+  if (current_rotate_x_ != 0.0f || current_rotate_y_ != 0.0f ||
+      current_rotate_z_ != 0.0f) {
+    float radX = current_rotate_x_ * kDegToRad;
+    float radY = current_rotate_y_ * kDegToRad;
+    float radZ = current_rotate_z_ * kDegToRad;
+
+    float sinX = sin(radX);
+    float cosX = cos(radX);
+    float sinY = sin(radY);
+    float cosY = cos(radY);
+    float sinZ = sin(radZ);
+    float cosZ = cos(radZ);
+
+    for (auto& vertex : vertices_) {
+      float x = vertex.x;
+      float y = vertex.y;
+      float z = vertex.z;
+
+      if (current_rotate_x_ != 0) {
+        float y1 = y * cosX - z * sinX;
+        float z1 = y * sinX + z * cosX;
+        y = y1;
+        z = z1;
+      }
+
+      if (current_rotate_y_ != 0) {
+        float x1 = x * cosY + z * sinY;
+        float z1 = -x * sinY + z * cosY;
+        x = x1;
+        z = z1;
+      }
+
+      if (current_rotate_z_ != 0) {
+        float x1 = x * cosZ - y * sinZ;
+        float y1 = x * sinZ + y * cosZ;
+        x = x1;
+        y = y1;
+      }
+
+      vertex.x = x;
+      vertex.y = y;
+      vertex.z = z;
+    }
+  }
+
+  if (current_translate_x_ != 0.0f || current_translate_y_ != 0.0f ||
+      current_translate_z_ != 0.0f) {
+    for (auto& vertex : vertices_) {
+      vertex.x += current_translate_x_;
+      vertex.y += current_translate_y_;
+      vertex.z += current_translate_z_;
+    }
   }
 }
 

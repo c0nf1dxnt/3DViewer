@@ -1,4 +1,4 @@
-#include "view/mainwindow.h"
+#include "view/mainwindow.hpp"
 
 #include <QApplication>
 #include <QFileInfo>
@@ -181,28 +181,29 @@ void MainWindow::setupConnections() {
 }
 
 void MainWindow::openFile() {
-  QString fileName = QFileDialog::getOpenFileName(this, "Open .obj file", "",
-                                                  "OBJ Files (*.obj)");
-  if (fileName.isEmpty()) {
+  QString filename = QFileDialog::getOpenFileName(
+      this, "Open 3D model", QDir::homePath(), "OBJ Files (*.obj)");
+
+  if (filename.isEmpty()) {
     return;
   }
 
-  QFileInfo fileInfo(fileName);
-  if (fileInfo.size() > 10 * 1024 * 1024) {
-    QMessageBox::warning(
-        this, "Warning!",
-        "The file exceeds 10 MB. It may take a while to download.");
-  }
-
-  statusBar()->showMessage("Uploading the model...");
-
-  if (controller_.LoadModel(fileName.toStdString())) {
-    updateStatusBar();
+  statusBar()->showMessage("Loading model...");
+  bool success = controller_.LoadModel(filename.toStdString());
+  if (success) {
     glWidget_->updateModel();
-    statusBar()->showMessage("The model was uploaded successfully", 3000);
+    updateStatusBar();
+    statusBar()->showMessage("Model loaded successfully", 3000);
+
+    translateXSpin_->setValue(0.0);
+    translateYSpin_->setValue(0.0);
+    translateZSpin_->setValue(0.0);
+    rotateXSpin_->setValue(0.0);
+    rotateYSpin_->setValue(0.0);
+    rotateZSpin_->setValue(0.0);
+    scaleSpin_->setValue(1.0);
   } else {
-    QMessageBox::critical(this, "Error", "Failed to upload file");
-    statusBar()->showMessage("Model loading error", 3000);
+    statusBar()->showMessage("Failed to load model", 3000);
   }
 }
 
@@ -215,10 +216,6 @@ void MainWindow::translate() {
   controller_.TranslateModel(dx, dy, dz);
   glWidget_->updateModel();
   statusBar()->showMessage("The model has been moved", 3000);
-
-  translateXSpin_->setValue(0.0);
-  translateYSpin_->setValue(0.0);
-  translateZSpin_->setValue(0.0);
 }
 
 void MainWindow::rotate() {
@@ -230,10 +227,6 @@ void MainWindow::rotate() {
   controller_.RotateModel(angleX, angleY, angleZ);
   glWidget_->updateModel();
   statusBar()->showMessage("The model has been rotated", 3000);
-
-  rotateXSpin_->setValue(0.0);
-  rotateYSpin_->setValue(0.0);
-  rotateZSpin_->setValue(0.0);
 }
 
 void MainWindow::scale() {
@@ -243,8 +236,6 @@ void MainWindow::scale() {
   controller_.ScaleModel(factor);
   glWidget_->updateModel();
   statusBar()->showMessage("The model has been scaled", 3000);
-
-  scaleSpin_->setValue(1.0);
 }
 
 void MainWindow::updateStatusBar() {

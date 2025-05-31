@@ -1,4 +1,4 @@
-#include "view/glwidget.h"
+#include "view/glwidget.hpp"
 
 #ifdef __APPLE__
 #include <OpenGL/glu.h>

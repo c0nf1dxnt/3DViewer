@@ -2,9 +2,9 @@
 #include <QCommandLineParser>
 #include <QDebug>
 
-#include "controller/controller.h"
-#include "model/model.h"
-#include "view/mainwindow.h"
+#include "controller/controller.hpp"
+#include "model/model.hpp"
+#include "view/mainwindow.hpp"
 
 int main(int argc, char* argv[]) {
   QApplication app(argc, argv);

@@ -12,8 +12,8 @@
 #include <QStatusBar>
 #include <QVBoxLayout>
 
-#include "controller/controller.h"
-#include "view/glwidget.h"
+#include "controller/controller.hpp"
+#include "view/glwidget.hpp"
 
 namespace viewer3d {
 

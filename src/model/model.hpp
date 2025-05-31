@@ -37,11 +37,21 @@ class Model {
 
  private:
   std::vector<Vertex> vertices_;
+  std::vector<Vertex> original_vertices_;
   std::vector<Face> faces_;
   std::string filename_;
   int edge_count_{0};
 
+  float current_translate_x_{0.0f};
+  float current_translate_y_{0.0f};
+  float current_translate_z_{0.0f};
+  float current_rotate_x_{0.0f};
+  float current_rotate_y_{0.0f};
+  float current_rotate_z_{0.0f};
+  float current_scale_{1.0f};
+
   void CalculateEdgeCount();
+  void ApplyAllTransformations();
 };
 
 }  // namespace viewer3d

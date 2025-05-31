@@ -6,7 +6,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLWidget>
 
-#include "controller/controller.h"
+#include "controller/controller.hpp"
 
 namespace viewer3d {
 

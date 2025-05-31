@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "model/model.h"
+#include "model/model.hpp"
 
 namespace viewer3d {
 
