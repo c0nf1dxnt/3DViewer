@@ -1,115 +1,138 @@
-# 3DViewer
+# 3DViewer v2.1
 
-## Описание
+## Description
 
-3DViewer - программа для визуализации трехмерных моделей в формате .obj, разработанная на C++ с использованием Qt и OpenGL. Приложение позволяет загружать, просматривать и трансформировать 3D модели.
+3DViewer is a program for visualizing three-dimensional models in .obj format, developed in C++ using Qt 5 and OpenGL. The application allows you to load, view, and transform 3D models with an intuitive user interface.
 
-## Функциональность
+## Functionality
 
-- Загрузка моделей в формате .obj
-- Перемещение, вращение и масштабирование модели
-- Отображение информации о модели (количество вершин и рёбер)
-- Управление с помощью мыши и интерфейса
-- Темно-серый фон для комфортного просмотра моделей
+- Loading models in .obj format
+- Moving, rotating, and scaling the model
+- Displaying model information (number of vertices and edges)
+- Control using mouse and interface elements
+- Dark gray background for comfortable model viewing
+- Command-line interface for direct file loading
 
-## Архитектура
+## Architecture
 
-Проект реализован с использованием паттерна Model-View-Controller (MVC):
+The project is implemented using the Model-View-Controller (MVC) pattern:
 
-- Model: Загрузка, хранение и трансформация данных 3D модели
-- View: Графический интерфейс и визуализация с помощью OpenGL
-- Controller: Обработка действий пользователя и связь между Model и View
+- **Model**: Loading, storing, and transforming 3D model data
+- **View**: Graphical interface and visualization using OpenGL
+- **Controller**: Processing user actions and communication between Model and View
 
-## Системные требования
+## System Requirements
 
-- C++17 совместимый компилятор
-- CMake 3.10 или выше
+- C++17 compatible compiler
+- CMake 3.10 or higher
 - Qt 5 (Widgets, Core, Gui, OpenGL)
 - OpenGL, GLU
-- Для Linux: GLUT, libgl1-mesa-dev
+- For Linux: GLUT, libgl1-mesa-dev
+- For macOS: Homebrew with Qt 5 installed (`brew install qt@5`)
 
-## Сборка и запуск
+## Building and Running
 
-### Быстрый старт
+### Quick Start
 
 ```bash
 make run
 ```
 
-Эта команда выполнит сборку проекта и запустит приложение.
+This command will build the project and launch the application.
 
-### Ручная сборка
+### Manual Build
 
 ```bash
-# Создание директории для сборки
+# Create build directory
 mkdir -p build
 
-# Сборка проекта
+# Build the project
 cd build
 cmake ..
 make
 
-# Запуск приложения
+# Run the application
 ./bin/viewer
 ```
 
-### Дополнительные команды
+### Command-line Options
+
+The application supports several command-line options:
+```bash
+# Show help
+./bin/viewer -h
+
+# Show version
+./bin/viewer -v
+
+# Load a model file at startup
+./bin/viewer -f path/to/model.obj
+```
+
+### Additional Commands
 
 ```bash
-# Очистка файлов сборки
+# Clean build files
 make clean
 ```
 
-## Структура проекта
+## Project Structure
 
 ```
 3DViewer/
-├── CMakeLists.txt       # Конфигурация CMake
-├── Makefile             # Makefile для удобной сборки
-├── README.md            # Документация проекта
-├── .clang-format        # Конфигурация форматирования кода
-├── src/                 # Исходный код
-│   ├── main.cpp         # Точка входа в программу
-│   ├── controller/      # Контроллер (MVC)
+├── CMakeLists.txt       # CMake configuration
+├── Makefile             # Makefile for convenient building
+├── README.md            # Project documentation (English)
+├── README_RUS.md        # Project documentation (Russian)
+├── .clang-format        # Code formatting configuration
+├── src/                 # Source code
+│   ├── main.cpp         # Program entry point
+│   ├── controller/      # Controller (MVC)
 │   │   ├── controller.h
 │   │   └── controller.cpp
-│   ├── model/           # Модель (MVC)
+│   ├── model/           # Model (MVC)
 │   │   ├── model.h
 │   │   └── model.cpp
-│   └── view/            # Представление (MVC)
+│   └── view/            # View (MVC)
 │       ├── mainwindow.h
 │       ├── mainwindow.cpp
 │       ├── glwidget.h
 │       └── glwidget.cpp
-└── resources/           # Ресурсы
-    └── cube.obj         # Пример 3D модели куба
+└── resources/           # Resources
+    ├── cube.obj         # Example 3D cube model
+    ├── dragon.obj       # Dragon 3D model
+    └── madara.obj       # Madara 3D model
 ```
 
-## Использование
+## Usage
 
-1. Запустите программу командой `make run`
-2. Нажмите кнопку "Открыть файл" для загрузки .obj модели
-3. Используйте мышь для вращения модели:
-   - Левая кнопка мыши + перемещение: вращение модели
-   - Колесо мыши: масштабирование
-4. Используйте элементы управления в интерфейсе для:
-   - Перемещения модели по осям X, Y, Z
-   - Вращения модели вокруг осей X, Y, Z
-   - Масштабирования модели
+1. Run the program with the command `make run` or `./bin/viewer`
+2. Click the "Open File" button to load an .obj model, or use the command-line option `-f filename.obj`
+3. Use the mouse to manipulate the model:
+   - Left mouse button + movement: rotate the model
+   - Mouse wheel: scaling
+4. Use the interface controls for:
+   - Moving the model along X, Y, Z axes
+   - Rotating the model around X, Y, Z axes
+   - Scaling the model
 
-## Формат OBJ
+## OBJ Format
 
-Программа поддерживает стандартный формат OBJ для 3D моделей, включающий:
+The program supports the standard OBJ format for 3D models, including:
 
-- Вершины (v): координаты точек в 3D пространстве
-- Грани (f): определение полигонов через индексы вершин
+- Vertices (v): coordinates of points in 3D space
+- Faces (f): definition of polygons through vertex indices
 
-Пример простого куба в формате OBJ (resources/cube.obj):
+Example of a simple cube in OBJ format (resources/cube.obj):
 ```
-v -1.0 -1.0 -1.0  # вершина 1
-v -1.0 -1.0  1.0  # вершина 2
+v -1.0 -1.0 -1.0  # vertex 1
+v -1.0 -1.0  1.0  # vertex 2
 ...
-f 1 3 7 5  # грань 1
-f 2 6 8 4  # грань 2
+f 1 3 7 5  # face 1
+f 2 6 8 4  # face 2
 ...
 ```
+
+## Namespace
+
+The project uses the `viewer3d` namespace for all its components to avoid name conflicts. 
