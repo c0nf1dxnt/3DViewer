@@ -36,94 +36,94 @@ GLWidget::GLWidget(Controller& controller, QWidget* parent)
 GLWidget::~GLWidget() {}
 
 void GLWidget::initializeGL() {
-  initializeOpenGLFunctions();
-  glClearColor(kBackgroundR, kBackgroundG, kBackgroundB, kBackgroundA);
+    initializeOpenGLFunctions();
+    glClearColor(kBackgroundR, kBackgroundG, kBackgroundB, kBackgroundA);
 
-  glEnable(GL_DEPTH_TEST);
-  glEnable(GL_CULL_FACE);
-  glShadeModel(GL_SMOOTH);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glShadeModel(GL_SMOOTH);
 }
 
 void GLWidget::paintGL() {
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glLoadIdentity();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();
 
-  glTranslatef(0.0f, 0.0f, kCameraDistance);
-  glScalef(zoom_, zoom_, zoom_);
-  glRotatef(rotationX_, 1.0f, 0.0f, 0.0f);
-  glRotatef(rotationY_, 0.0f, 1.0f, 0.0f);
+    glTranslatef(0.0f, 0.0f, kCameraDistance);
+    glScalef(zoom_, zoom_, zoom_);
+    glRotatef(rotationX_, 1.0f, 0.0f, 0.0f);
+    glRotatef(rotationY_, 0.0f, 1.0f, 0.0f);
 
-  drawModel();
+    drawModel();
 }
 
 void GLWidget::resizeGL(int width, int height) {
-  glViewport(0, 0, width, height);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
+    glViewport(0, 0, width, height);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
 
-  float aspect = static_cast<float>(width) / (height ? height : 1);
-  gluPerspective(kDefaultFOV, aspect, kNearPlane, kFarPlane);
+    float aspect = static_cast<float>(width) / (height ? height : 1);
+    gluPerspective(kDefaultFOV, aspect, kNearPlane, kFarPlane);
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent* event) { lastPos_ = event->pos(); }
 
 void GLWidget::mouseMoveEvent(QMouseEvent* event) {
-  int dx = event->x() - lastPos_.x();
-  int dy = event->y() - lastPos_.y();
+    int dx = event->x() - lastPos_.x();
+    int dy = event->y() - lastPos_.y();
 
-  if (event->buttons() & Qt::LeftButton) {
-    rotationX_ += kRotationSpeed * dy;
-    rotationY_ += kRotationSpeed * dx;
-    update();
-  }
+    if (event->buttons() & Qt::LeftButton) {
+        rotationX_ += kRotationSpeed * dy;
+        rotationY_ += kRotationSpeed * dx;
+        update();
+    }
 
-  lastPos_ = event->pos();
+    lastPos_ = event->pos();
 }
 
 void GLWidget::wheelEvent(QWheelEvent* event) {
-  float delta = event->angleDelta().y() / 120.0f;
-  zoom_ += zoom_ * kZoomSpeed * delta;
-  zoom_ = std::max(kMinZoom, zoom_);
-  update();
+    float delta = event->angleDelta().y() / 120.0f;
+    zoom_ += zoom_ * kZoomSpeed * delta;
+    zoom_ = std::max(kMinZoom, zoom_);
+    update();
 }
 
 void GLWidget::updateModel() { update(); }
 
 void GLWidget::drawModel() {
-  const auto& vertices = controller_.GetVertices();
-  const auto& faces = controller_.GetFaces();
+    const auto& vertices = controller_.GetVertices();
+    const auto& faces = controller_.GetFaces();
 
-  if (vertices.empty() || faces.empty()) {
-    return;
-  }
-
-  glColor3f(kModelR, kModelG, kModelB);
-
-  for (const auto& face : faces) {
-    const auto& indices = face.vertexIndices;
-    if (indices.size() == 2) {
-      glBegin(GL_LINES);
-      for (int index : indices) {
-        if (index >= 0 && index < static_cast<int>(vertices.size())) {
-          const auto& vertex = vertices[index];
-          glVertex3f(vertex.x, vertex.y, vertex.z);
-        }
-      }
-      glEnd();
-    } else if (indices.size() >= 3) {
-      glBegin(GL_LINE_LOOP);
-      for (int index : indices) {
-        if (index >= 0 && index < static_cast<int>(vertices.size())) {
-          const auto& vertex = vertices[index];
-          glVertex3f(vertex.x, vertex.y, vertex.z);
-        }
-      }
-      glEnd();
+    if (vertices.empty() || faces.empty()) {
+        return;
     }
-  }
+
+    glColor3f(kModelR, kModelG, kModelB);
+
+    for (const auto& face : faces) {
+        const auto& indices = face.vertexIndices;
+        if (indices.size() == 2) {
+            glBegin(GL_LINES);
+            for (int index : indices) {
+                if (index >= 0 && index < static_cast<int>(vertices.size())) {
+                    const auto& vertex = vertices[index];
+                    glVertex3f(vertex.x, vertex.y, vertex.z);
+                }
+            }
+            glEnd();
+        } else if (indices.size() >= 3) {
+            glBegin(GL_LINE_LOOP);
+            for (int index : indices) {
+                if (index >= 0 && index < static_cast<int>(vertices.size())) {
+                    const auto& vertex = vertices[index];
+                    glVertex3f(vertex.x, vertex.y, vertex.z);
+                }
+            }
+            glEnd();
+        }
+    }
 }
 
 }  // namespace viewer3d

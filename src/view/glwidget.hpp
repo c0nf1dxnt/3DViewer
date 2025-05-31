@@ -11,33 +11,33 @@
 namespace viewer3d {
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions {
-  Q_OBJECT
+    Q_OBJECT
 
- public:
-  explicit GLWidget(Controller& controller, QWidget* parent = nullptr);
-  ~GLWidget();
+   public:
+    explicit GLWidget(Controller& controller, QWidget* parent = nullptr);
+    ~GLWidget();
 
- protected:
-  void initializeGL() override;
-  void paintGL() override;
-  void resizeGL(int width, int height) override;
+   protected:
+    void initializeGL() override;
+    void paintGL() override;
+    void resizeGL(int width, int height) override;
 
-  void mousePressEvent(QMouseEvent* event) override;
-  void mouseMoveEvent(QMouseEvent* event) override;
-  void wheelEvent(QWheelEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
- public slots:
-  void updateModel();
+   public slots:
+    void updateModel();
 
- private:
-  Controller& controller_;
-  QPoint lastPos_;
+   private:
+    Controller& controller_;
+    QPoint lastPos_;
 
-  float rotationX_ = 0.0f;
-  float rotationY_ = 0.0f;
-  float zoom_ = 1.0f;
+    float rotationX_ = 0.0f;
+    float rotationY_ = 0.0f;
+    float zoom_ = 1.0f;
 
-  void drawModel();
+    void drawModel();
 };
 
 }  // namespace viewer3d
