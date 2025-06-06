@@ -38,7 +38,9 @@ int main(int argc, char* argv[]) {
 
     if (parser.isSet(fileOption)) {
         QString filename = parser.value(fileOption);
-        if (!controller.LoadModel(filename.toStdString())) {
+        if (controller.LoadModel(filename.toStdString())) {
+            mainWindow.onModelLoaded();
+        } else {
             qWarning() << "Failed to upload file:" << filename;
         }
     }

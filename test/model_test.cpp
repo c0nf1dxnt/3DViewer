@@ -41,7 +41,7 @@ TEST_F(ModelTest, LoadFromFile) {
     EXPECT_EQ(model_.GetFilename(), "test_cube.obj");
     EXPECT_EQ(model_.GetVertexCount(), 8);
     EXPECT_EQ(model_.GetFaces().size(), 6);
-    EXPECT_EQ(model_.GetEdgeCount(), 24);
+    EXPECT_EQ(model_.GetEdgeCount(), 12);
 }
 
 TEST_F(ModelTest, LoadFromNonExistentFile) {

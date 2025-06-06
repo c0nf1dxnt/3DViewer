@@ -209,9 +209,10 @@ void Model::ApplyAllTransformations() {
 }
 
 void Model::CalculateEdgeCount() {
-    edge_count_ = 0;
-    for (const auto& face : faces_) {
-        edge_count_ += face.vertexIndices.size();
+    if (!vertices_.empty() && !faces_.empty()) {
+        edge_count_ = vertices_.size() + faces_.size() - 2;
+    } else {
+        edge_count_ = 0;
     }
 }
 

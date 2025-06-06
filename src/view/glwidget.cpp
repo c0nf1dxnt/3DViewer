@@ -38,10 +38,6 @@ GLWidget::~GLWidget() {}
 void GLWidget::initializeGL() {
     initializeOpenGLFunctions();
     glClearColor(kBackgroundR, kBackgroundG, kBackgroundB, kBackgroundA);
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glShadeModel(GL_SMOOTH);
 }
 
 void GLWidget::paintGL() {

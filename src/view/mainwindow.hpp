@@ -24,6 +24,8 @@ class MainWindow : public QMainWindow {
     explicit MainWindow(Controller& controller, QWidget* parent = nullptr);
     ~MainWindow() = default;
 
+    void onModelLoaded();
+
    private slots:
     void openFile();
     void translate();

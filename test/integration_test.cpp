@@ -41,7 +41,7 @@ class IntegrationTest : public ::testing::Test {
 TEST_F(IntegrationTest, LoadAndTransform) {
     EXPECT_TRUE(controller_.LoadModel("test_cube.obj"));
     EXPECT_EQ(controller_.GetVertexCount(), 8);
-    EXPECT_EQ(controller_.GetEdgeCount(), 24);
+    EXPECT_EQ(controller_.GetEdgeCount(), 12);
 
     controller_.ScaleModel(2.0f);
     controller_.RotateModel(90.0f, 0.0f, 0.0f);

@@ -56,7 +56,6 @@ void MainWindow::createWidgets() {
     glWidget_ = new GLWidget(controller_, this);
 
     openButton_ = new QPushButton("Open file", this);
-    openButton_->setIcon(QIcon::fromTheme("document-open"));
 
     translateXSpin_ = new QDoubleSpinBox(this);
     translateYSpin_ = new QDoubleSpinBox(this);
@@ -182,7 +181,7 @@ void MainWindow::setupConnections() {
 
 void MainWindow::openFile() {
     QString filename = QFileDialog::getOpenFileName(
-        this, "Open 3D model", QDir::homePath(), "OBJ Files (*.obj)");
+        this, "Open 3D model", QDir::currentPath(), "OBJ Files (*.obj)");
 
     if (filename.isEmpty()) {
         return;
@@ -191,20 +190,24 @@ void MainWindow::openFile() {
     statusBar()->showMessage("Loading model...");
     bool success = controller_.LoadModel(filename.toStdString());
     if (success) {
-        glWidget_->updateModel();
-        updateStatusBar();
+        onModelLoaded();
         statusBar()->showMessage("Model loaded successfully", 3000);
-
-        translateXSpin_->setValue(0.0);
-        translateYSpin_->setValue(0.0);
-        translateZSpin_->setValue(0.0);
-        rotateXSpin_->setValue(0.0);
-        rotateYSpin_->setValue(0.0);
-        rotateZSpin_->setValue(0.0);
-        scaleSpin_->setValue(1.0);
     } else {
         statusBar()->showMessage("Failed to load model", 3000);
     }
+}
+
+void MainWindow::onModelLoaded() {
+    glWidget_->updateModel();
+    updateStatusBar();
+
+    translateXSpin_->setValue(0.0);
+    translateYSpin_->setValue(0.0);
+    translateZSpin_->setValue(0.0);
+    rotateXSpin_->setValue(0.0);
+    rotateYSpin_->setValue(0.0);
+    rotateZSpin_->setValue(0.0);
+    scaleSpin_->setValue(1.0);
 }
 
 void MainWindow::translate() {

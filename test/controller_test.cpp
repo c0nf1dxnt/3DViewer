@@ -110,7 +110,7 @@ TEST_F(TestController, GetVertexCount) {
 
 TEST_F(TestController, GetEdgeCount) {
     EXPECT_TRUE(controller_.LoadModel("test_cube.obj"));
-    EXPECT_EQ(controller_.GetEdgeCount(), 24);
+    EXPECT_EQ(controller_.GetEdgeCount(), 12);
 }
 
 TEST_F(TestController, CombinedTransformations) {
